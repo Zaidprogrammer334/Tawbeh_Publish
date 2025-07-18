@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="مواقيت الصلاة - تطبيق توبة">
+    <meta name="theme-color" content="#2e7d32">
+    <title>مواقيت الصلاة - توبتي</title>
+    
+    <!-- تحسين تحميل الخطوط -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- تحسين تحميل الأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <!-- مكتبة البوصلة -->
+    <script src="https://cdn.jsdelivr.net/npm/compasshijri@1.0.3/dist/compass.min.js"></script>
+    
+    <!-- CSS المضمن لتجنب وميض المحتوى غير المنسق (FOUC) -->
+    <style>
+        /* CSS المضمن الأساسي */
+        body {
+            margin: 0;
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .NavBar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #2e7d32;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .main-content {
+            margin-top: 80px;
+        }
+    </style>
+    
+    <!-- CSS غير الحرج -->
+    <link rel="stylesheet" href="Style/salah.css" media="print" onload="this.media='all'">
+    
+    <!-- تحميل JavaScript بشكل غير متزامن -->
+    <script src="Script/salah.js" defer></script>
+</head>
+<body>
+    <nav class="NavBar">
+        <div class="nav-container">
+            <div class="logo">
+                <span>توبــــة</span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a class="menu__link" href="index.html"><i class="fas fa-home" aria-hidden="true"></i> <span>الرئيسية</span></a>
+                <a class="menu__link" href="salah_page.html"><i class="fas fa-clock" aria-hidden="true"></i> <span>مواقيت الصلاة</span></a>
+                <a class="menu__link" href="adhkar_page.html"><i class="fas fa-dharmachakra" aria-hidden="true"></i> <span>أذكار</span></a>
+                <a class="menu__link" href="quran_page.html"><i class="fas fa-quran" aria-hidden="true"></i> <span>القرآن الكريم</span></a>
+                <a class="menu__link" href="hadith_page.html"><i class="fas fa-book-open" aria-hidden="true"></i> <span>الحديث الشريف</span></a>
+                <a class="menu__link" href="tawbah_page.html"><i class="fas fa-hands-praying"></i> توبتي</a>
+
+                <div class="dropdown">
+                    <a class="menu__link dropdown-btn active" href="#">
+                        <i class="fas fa-ellipsis-h" aria-hidden="true"></i> <span>المزيد</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </a>
+                    <div class="dropdown-content">
+                        <a class="menu__link" href="asma_allah.html"><i class="fas fa-book-open"></i> أسماء الله الحسنى</a>
+                        <a class="menu__link" href="stories_page.html"><i class="fas fa-book"></i> قصص إسلامية</a>
+                        <a class="menu__link" href="islamic_figures.html"><i class="fas fa-users"></i> شخصيات إسلامية</a>
+                        <a class="menu__link" href="tasbih.html"><i class="fas fa-praying-hands"></i> مسبحة إلكترونية</a>
+                    </div>
+                </div>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="قائمة" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- نافذة التنبيه -->
+    <div id="prayerAlert" class="prayer-alert">
+        <div class="alert-content">
+            <h2 id="alertPrayerName">حان وقت صلاة الفجر</h2>
+            <p>الله أكبر، الله أكبر، الله أكبر</p>
+            <audio id="athanAudio" controls loop>
+                <source src="https://www.islamcan.com/athan/azan1.mp3" type="audio/mpeg">
+                متصفحك لا يدعم تشغيل الصوت.
+            </audio>
+            <div class="alert-buttons">
+                <button id="stopAthan" class="alert-btn stop-btn">إيقاف الأذان</button>
+                <button id="closeAlert" class="alert-btn close-btn">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-clock" aria-hidden="true"></i> مواقيت الصلاة</h1>
+                <p class="subtitle">مواقيت الصلاة الدقيقة حسب موقعك الحالي</p>
+                <div class="verse">
+                    <p><i class="fas fa-quote-right" aria-hidden="true"></i> {إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا}</p>
+                    <p class="ref">[النساء:103]</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="sections-container">
+            <!-- قسم مواقيت الصلاة -->
+            <div class="section" id="prayer-times-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-calendar-alt" aria-hidden="true"></i> مواقيت اليوم</h2>
+                    <p class="section-subtitle">مواقيت الصلاة مع فضائل كل صلاة</p>
+                </div>
+                <div class="time-remaining">
+                    <p id="nextPrayerInfo">الوقت المتبقي لصلاة الفجر: <span id="remainingTime">--:--:--</span></p>
+                </div>
+                <div class="prayer-times" id="prayerTimes">
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-sun"></i> الشروق</span>
+                            <span class="prayer-time" id="sunriseTime">جاري التحميل...</span>
+                        </div>
+                    </div>
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-sun"></i> الفجر</span>
+                            <span class="prayer-time" id="fajrTime">جاري التحميل...</span>
+                            <button class="athan-btn" data-prayer="fajr"><i class="fas fa-bell"></i> تنبيه</button>
+                        </div>
+                        <div class="prayer-benefit">
+                            <p>فضل صلاة الفجر: شهادة من الملائكة، حماية الله، نور يوم القيامة، براءة من النفاق، دخول الجنة، بركة في الرزق والعمل.</p>
+                        </div>
+                    </div>
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-sun"></i> الظهر</span>
+                            <span class="prayer-time" id="dhuhrTime">جاري التحميل...</span>
+                            <button class="athan-btn" data-prayer="dhuhr"><i class="fas fa-bell"></i> تنبيه</button>
+                        </div>
+                        <div class="prayer-benefit">
+                            <p>فضل صلاة الظهر: الالتزام بأمر الله، تكفير الذنوب، الاستراحة الروحية، البركة في الوقت.</p>
+                        </div>
+                    </div>
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-sun"></i> العصر</span>
+                            <span class="prayer-time" id="asrTime">جاري التحميل...</span>
+                            <button class="athan-btn" data-prayer="asr"><i class="fas fa-bell"></i> تنبيه</button>
+                        </div>
+                        <div class="prayer-benefit">
+                            <p>فضل صلاة العصر: الصلاة الوسطى، سبب لدخول الجنة، تكفير الذنوب، الاستراحة الروحية.</p>
+                        </div>
+                    </div>
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-moon"></i> المغرب</span>
+                            <span class="prayer-time" id="maghribTime">جاري التحميل...</span>
+                            <button class="athan-btn" data-prayer="maghrib"><i class="fas fa-bell"></i> تنبيه</button>
+                        </div>
+                        <div class="prayer-benefit">
+                            <p>فضل صلاة المغرب: الالتزام بأمر الله، سبب لدخول الجنة، تكفير الذنوب، الاستراحة الروحية.</p>
+                        </div>
+                    </div>
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-moon"></i> العشاء</span>
+                            <span class="prayer-time" id="ishaTime">جاري التحميل...</span>
+                            <button class="athan-btn" data-prayer="isha"><i class="fas fa-bell"></i> تنبيه</button>
+                        </div>
+                        <div class="prayer-benefit">
+                            <p>فضل صلاة العشاء: تعدل قيام نصف الليل، دليل على قوة الإيمان، سبب للنجاة من النار، تمنح الطمأنينة.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم البوصلة -->
+            <div class="section" id="compass-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-compass" aria-hidden="true"></i> اتجاه القبلة</h2>
+                    <p class="section-subtitle">حدد اتجاه القبلة باستخدام البوصلة</p>
+                </div>
+                <div class="compass-container">
+                    <div class="compass">
+                        <div class="compass-arrow"></div>
+                        <div class="compass-circle"></div>
+                        <div class="compass-direction">القبلة</div>
+                    </div>
+                    <div class="compass-info">
+                        <p id="compassStatus">جاري تحديد الاتجاه...</p>
+                        <p id="qiblaDegree">الزاوية: --°</p>
+                    </div>
+                    <button id="startCompass" class="btn compass-btn">تشغيل البوصلة</button>
+                    <button id="stopCompass" class="btn compass-btn" disabled>إيقاف البوصلة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إشعارات -->
+    <div id="notification" class="notification"></div>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-info-circle" aria-hidden="true"></i> عن التطبيق</h3>
+                <p>تطبيق توبة يهدف إلى مساعدة المسلمين في المحافظة على الصلوات في أوقاتها</p>
+            </div>
+            <div class="footer-section">
+                <h3><i class="fas fa-link" aria-hidden="true"></i> روابط سريعة</h3>
+                <ul>
+                    <li><a href="index.html">الصفحة الرئيسية</a></li>
+                    <li><a href="salah_page.html">مواقيت الصلاة</a></li>
+                    <li><a href="adhkar_page.html">الأذكار اليومية</a></li>
+                    <li><a href="quran_page.html">القرآن الكريم</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3><i class="fas fa-envelope" aria-hidden="true"></i> تواصل معنا</h3>
+                <p>للاستفسارات أو المقترحات، يرجى التواصل عبر البريد الإلكتروني:</p>
+                <p>info@tawbaty.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; <span id="current-year">2025</span> توبتي - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+    
+    <!-- زر العودة للأعلى -->
+    <button class="scroll-top" id="scrollTop" aria-label="العودة إلى الأعلى">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+    
+    <script>
+        // تحديث سنة حقوق النشر
+        document.getElementById('current-year').textContent = new Date().getFullYear();
+
+        const dropdownBtns = document.querySelectorAll('.dropdown-btn');
+        
+        dropdownBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const dropdown = this.closest('.dropdown');
+                dropdown.classList.toggle('active');
+            });
+        });
+
+        // إغلاق القوائم المنسدلة عند النقر خارجها
+        document.addEventListener('click', function() {
+            document.querySelectorAll('.dropdown').forEach(dropdown => {
+                dropdown.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+</html>
