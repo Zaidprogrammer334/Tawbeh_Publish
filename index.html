@@ -13,12 +13,11 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     
     <!-- تحسين تحميل الأيقونات -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     
     <!-- مكتبة البوصلة -->
     <script src="https://cdn.jsdelivr.net/npm/compasshijri@1.0.3/dist/compass.min.js"></script>
     
-    <!-- CSS المضمن لتجنب وميض المحتوى غير المنسق (FOUC) -->
     <style>
         /* CSS المضمن الأساسي */
         body {
@@ -41,13 +40,99 @@
         .main-content {
             margin-top: 80px;
         }
+
+        /* إضافة أنماط جديدة للبوصلة والتنبيهات */
+        .compass-container {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .compass {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 20px;
+            position: relative;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            border: 5px solid #2e7d32;
+        }
+
+        .compass-arrow {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            width: 2px;
+            height: 40%;
+            background-color: red;
+            transform-origin: bottom;
+            transform: translateX(-50%) rotate(0deg);
+        }
+
+        .compass-direction {
+            position: absolute;
+            bottom: 10%;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-weight: bold;
+            color: #2e7d32;
+        }
+
+        .prayer-alert {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .alert-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .time-remaining {
+            background-color: #2e7d32;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        #remainingTime {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: #ffc107;
+        }
+
+        .athan-btn {
+            background-color: #2e7d32;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
     </style>
     
     <!-- CSS غير الحرج -->
     <link rel="stylesheet" href="Style/salah.css" media="print" onload="this.media='all'">
-    
-    <!-- تحميل JavaScript بشكل غير متزامن -->
-    <script src="Script/salah.js" defer></script>
 </head>
 <body>
     <nav class="NavBar">
@@ -177,6 +262,12 @@
                             <p>فضل صلاة العشاء: تعدل قيام نصف الليل، دليل على قوة الإيمان، سبب للنجاة من النار، تمنح الطمأنينة.</p>
                         </div>
                     </div>
+                    <div class="retry-container" id="retryContainer" style="display: none;">
+                        <button id="retryButton" class="btn retry-btn">
+                            <i class="fas fa-sync-alt"></i> إعادة المحاولة
+                        </button>
+                        <p class="retry-message">تعذر جلب البيانات. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.</p>
+                    </div>
                 </div>
             </div>
             
@@ -238,25 +329,494 @@
     </button>
     
     <script>
-        // تحديث سنة حقوق النشر
-        document.getElementById('current-year').textContent = new Date().getFullYear();
+        document.addEventListener('DOMContentLoaded', function() {
+            // عناصر DOM
+            const hamburger = document.getElementById('hamburger');
+            const navLinks = document.getElementById('navLinks');
+            const scrollTopBtn = document.getElementById('scrollTop');
+            const notification = document.getElementById('notification');
+            const retryButton = document.getElementById('retryButton');
+            const retryContainer = document.getElementById('retryContainer');
+            
+            // عناصر مواقيت الصلاة
+            const sunriseTime = document.getElementById('sunriseTime');
+            const fajrTime = document.getElementById('fajrTime');
+            const dhuhrTime = document.getElementById('dhuhrTime');
+            const asrTime = document.getElementById('asrTime');
+            const maghribTime = document.getElementById('maghribTime');
+            const ishaTime = document.getElementById('ishaTime');
+            
+            // عناصر الوقت المتبقي
+            const nextPrayerInfo = document.getElementById('nextPrayerInfo');
+            const remainingTime = document.getElementById('remainingTime');
+            
+            // عناصر البوصلة
+            const compassStatus = document.getElementById('compassStatus');
+            const qiblaDegree = document.getElementById('qiblaDegree');
+            const startCompass = document.getElementById('startCompass');
+            const stopCompass = document.getElementById('stopCompass');
+            const compassArrow = document.querySelector('.compass-arrow');
+            
+            // عناصر التنبيه
+            const prayerAlert = document.getElementById('prayerAlert');
+            const alertPrayerName = document.getElementById('alertPrayerName');
+            const athanAudio = document.getElementById('athanAudio');
+            const stopAthan = document.getElementById('stopAthan');
+            const closeAlert = document.getElementById('closeAlert');
+            const athanButtons = document.querySelectorAll('.athan-btn');
+            
+            // متغيرات التتبع
+            let prayerTimesData = {};
+            let nextPrayerTimer = null;
+            let compassWatchId = null;
+            let userLocation = {};
+            let activeAlarms = {
+                fajr: false,
+                dhuhr: false,
+                asr: false,
+                maghrib: false,
+                isha: false
+            };
 
-        const dropdownBtns = document.querySelectorAll('.dropdown-btn');
-        
-        dropdownBtns.forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                const dropdown = this.closest('.dropdown');
-                dropdown.classList.toggle('active');
-            });
-        });
+            // تهيئة الصفحة
+            initPage();
 
-        // إغلاق القوائم المنسدلة عند النقر خارجها
-        document.addEventListener('click', function() {
-            document.querySelectorAll('.dropdown').forEach(dropdown => {
-                dropdown.classList.remove('active');
-            });
+            function initPage() {
+                // أحداث القائمة المنسدلة
+                hamburger.addEventListener('click', toggleMenu);
+                
+                // حدث زر العودة للأعلى
+                scrollTopBtn.addEventListener('click', scrollToTop);
+                window.addEventListener('scroll', toggleScrollTopButton);
+                
+                // أحداث البوصلة
+                startCompass.addEventListener('click', startCompassFunction);
+                stopCompass.addEventListener('click', stopCompassFunction);
+                
+                // أحداث التنبيه
+                stopAthan.addEventListener('click', stopAthanFunction);
+                closeAlert.addEventListener('click', closeAlertFunction);
+                retryButton.addEventListener('click', fetchPrayerTimes);
+                
+                // أحداث أزرار التنبيه
+                athanButtons.forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const prayer = this.getAttribute('data-prayer');
+                        toggleAthanAlarm(prayer);
+                    });
+                });
+                
+                // جلب مواقيت الصلاة
+                fetchPrayerTimes();
+                
+                // تحميل التنبيهات المحفوظة
+                loadAlarms();
+            }
+
+            function toggleMenu() {
+                navLinks.classList.toggle('active');
+                const isExpanded = navLinks.classList.contains('active');
+                hamburger.setAttribute('aria-expanded', isExpanded);
+            }
+
+            function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+
+            function toggleScrollTopButton() {
+                if (window.pageYOffset > 300) {
+                    scrollTopBtn.classList.add('active');
+                } else {
+                    scrollTopBtn.classList.remove('active');
+                }
+            }
+
+            function showNotification(message, type) {
+                notification.textContent = message;
+                notification.className = 'notification ' + type;
+                
+                setTimeout(() => {
+                    notification.classList.add('fade-out');
+                    setTimeout(() => {
+                        notification.className = 'notification';
+                    }, 500);
+                }, 3000);
+            }
+
+            function fetchPrayerTimes() {
+                const loadingText = "جاري التحميل...";
+                
+                // تعبئة مواقيت الصلاة الافتراضية
+                sunriseTime.textContent = loadingText;
+                fajrTime.textContent = loadingText;
+                dhuhrTime.textContent = loadingText;
+                asrTime.textContent = loadingText;
+                maghribTime.textContent = loadingText;
+                ishaTime.textContent = loadingText;
+                nextPrayerInfo.textContent = "جاري تحديد موعد الصلاة القادمة...";
+                remainingTime.textContent = "--:--:--";
+                retryContainer.style.display = 'none';
+
+                // التحقق من دعم المتصفح لخدمة الموقع
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        position => {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+                            userLocation = { latitude, longitude };
+                            fetchPrayerTimesData(latitude, longitude);
+                        },
+                        error => {
+                            console.error('Error getting location:', error);
+                            fetchLocationByIP();
+                        }
+                    );
+                } else {
+                    fetchLocationByIP();
+                }
+            }
+
+            function fetchLocationByIP() {
+                fetch('https://ipapi.co/json/')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.latitude && data.longitude) {
+                            userLocation = { latitude: data.latitude, longitude: data.longitude };
+                            fetchPrayerTimesData(data.latitude, data.longitude, data.city, data.country_name);
+                        } else {
+                            useDefaultTimes();
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching location by IP:', error);
+                        useDefaultTimes();
+                    });
+            }
+
+            function fetchPrayerTimesData(latitude, longitude, city = '', country = '') {
+                const method = 4; // طريقة الحساب (4 = رابطة العالم الإسلامي)
+                const apiUrl = `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=${method}`;
+
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("API Response:", data);
+                        
+                        if (data && data.data && data.data.timings) {
+                            const timings = data.data.timings;
+                            prayerTimesData = {
+                                timings: timings,
+                                date: data.data.date,
+                                meta: data.data.meta
+                            };
+                            
+                            displayPrayerTimes(timings);
+                            calculateNextPrayer(timings);
+                            
+                            if (nextPrayerTimer) clearInterval(nextPrayerTimer);
+                            nextPrayerTimer = setInterval(() => calculateNextPrayer(timings), 1000);
+                            
+                            checkAlarms();
+                        } else {
+                            throw new Error('Prayer times data not available');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching prayer times:', error);
+                        useDefaultTimes();
+                        retryContainer.style.display = 'block';
+                        showNotification("تعذر جلب مواقيت الصلاة. يرجى المحاولة لاحقاً", "error");
+                    });
+            }
+
+            function displayPrayerTimes(timings) {
+                sunriseTime.textContent = convertTo12HourFormat(timings.Sunrise);
+                fajrTime.textContent = convertTo12HourFormat(timings.Fajr);
+                dhuhrTime.textContent = convertTo12HourFormat(timings.Dhuhr);
+                asrTime.textContent = convertTo12HourFormat(timings.Asr);
+                maghribTime.textContent = convertTo12HourFormat(timings.Maghrib);
+                ishaTime.textContent = convertTo12HourFormat(timings.Isha);
+            }
+
+            function convertTo12HourFormat(time) {
+                const [hours, minutes] = time.split(':');
+                let period = 'ص';
+                let adjustedHours = parseInt(hours);
+
+                if (adjustedHours >= 12) {
+                    period = 'م';
+                    if (adjustedHours > 12) {
+                        adjustedHours -= 12;
+                    }
+                }
+
+                if (adjustedHours === 0) {
+                    adjustedHours = 12;
+                }
+
+                return `${adjustedHours}:${minutes} ${period}`;
+            }
+
+            function calculateNextPrayer(timings) {
+                const now = new Date();
+                const currentTime = now.getHours() * 60 + now.getMinutes();
+                
+                const prayerTimes = {
+                    Fajr: convertTimeToMinutes(timings.Fajr),
+                    Dhuhr: convertTimeToMinutes(timings.Dhuhr),
+                    Asr: convertTimeToMinutes(timings.Asr),
+                    Maghrib: convertTimeToMinutes(timings.Maghrib),
+                    Isha: convertTimeToMinutes(timings.Isha),
+                    Sunrise: convertTimeToMinutes(timings.Sunrise)
+                };
+                
+                let nextPrayer = null;
+                let nextPrayerName = '';
+                
+                for (const [prayer, time] of Object.entries(prayerTimes)) {
+                    if (time > currentTime) {
+                        nextPrayer = time;
+                        nextPrayerName = getPrayerArabicName(prayer);
+                        break;
+                    }
+                }
+                
+                if (!nextPrayer) {
+                    nextPrayer = prayerTimes.Fajr + 24 * 60;
+                    nextPrayerName = getPrayerArabicName('Fajr');
+                }
+                
+                const timeRemaining = nextPrayer - currentTime;
+                const hours = Math.floor(timeRemaining / 60);
+                const minutes = timeRemaining % 60;
+                const seconds = 60 - now.getSeconds();
+                
+                nextPrayerInfo.textContent = `الوقت المتبقي لصلاة ${nextPrayerName}:`;
+                remainingTime.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                checkCurrentPrayer(prayerTimes, currentTime);
+            }
+
+            function convertTimeToMinutes(timeStr) {
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            }
+
+            function getPrayerArabicName(prayer) {
+                const prayerNames = {
+                    'Fajr': 'الفجر',
+                    'Dhuhr': 'الظهر',
+                    'Asr': 'العصر',
+                    'Maghrib': 'المغرب',
+                    'Isha': 'العشاء',
+                    'Sunrise': 'الشروق'
+                };
+                return prayerNames[prayer] || prayer;
+            }
+
+            function checkCurrentPrayer(prayerTimes, currentTime) {
+                const prayerThreshold = 2;
+                
+                for (const [prayer, time] of Object.entries(prayerTimes)) {
+                    if (prayer === 'Sunrise') continue;
+                    
+                    if (Math.abs(currentTime - time) <= prayerThreshold) {
+                        if (activeAlarms[prayer.toLowerCase()]) {
+                            showPrayerAlert(prayer);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            function useDefaultTimes() {
+                const defaultTimes = {
+                    Fajr: '05:00',
+                    Sunrise: '06:30',
+                    Dhuhr: '12:30',
+                    Asr: '15:45',
+                    Maghrib: '18:30',
+                    Isha: '20:00'
+                };
+                
+                prayerTimesData = {
+                    timings: defaultTimes,
+                    date: { hijri: { day: '--', month: { ar: '--' }, year: '----' } },
+                    meta: { method: { name: 'افتراضي (مكة المكرمة)' } }
+                };
+                
+                displayPrayerTimes(defaultTimes);
+                calculateNextPrayer(defaultTimes);
+                
+                if (nextPrayerTimer) clearInterval(nextPrayerTimer);
+                nextPrayerTimer = setInterval(() => calculateNextPrayer(defaultTimes), 1000);
+            }
+
+            // وظائف البوصلة المعدلة
+            function startCompassFunction() {
+                if (!userLocation.latitude || !userLocation.longitude) {
+                    showNotification("يتم استخدام موقع مكة المكرمة للبوصلة", "error");
+                    userLocation = { latitude: 21.3891, longitude: 39.8579 };
+                }
+
+                if (window.DeviceOrientationEvent) {
+                    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                        DeviceOrientationEvent.requestPermission()
+                            .then(permissionState => {
+                                if (permissionState === 'granted') {
+                                    initCompass();
+                                } else {
+                                    showNotification("تم رفض صلاحيات البوصلة", "error");
+                                }
+                            })
+                            .catch(console.error);
+                    } else {
+                        initCompass();
+                    }
+                } else {
+                    compassStatus.textContent = "المتصفح أو الجهاز لا يدعم البوصلة";
+                    showNotification("المتصفح أو الجهاز لا يدعم البوصلة", "error");
+                }
+            }
+
+            function initCompass() {
+                compassStatus.textContent = "جاري تحديد اتجاه القبلة...";
+                startCompass.disabled = true;
+                stopCompass.disabled = false;
+
+                const qiblaDirection = Qibla(userLocation.latitude, userLocation.longitude);
+                qiblaDegree.textContent = `الزاوية: ${Math.round(qiblaDirection)}°`;
+
+                window.addEventListener('deviceorientation', handleCompass);
+            }
+
+            function handleCompass(event) {
+                if (event.alpha !== null) {
+                    const alpha = event.alpha;
+                    const compassHeading = 360 - alpha;
+                    const qiblaDirection = Qibla(userLocation.latitude, userLocation.longitude);
+                    const angle = (compassHeading - qiblaDirection + 360) % 360;
+                    
+                    compassArrow.style.transform = `translateX(-50%) rotate(${angle}deg)`;
+                    compassStatus.textContent = "البوصلة نشطة - وجه الجهاز نحو القبلة";
+                }
+            }
+
+            function stopCompassFunction() {
+                window.removeEventListener('deviceorientation', handleCompass);
+                compassStatus.textContent = "البوصلة متوقفة";
+                compassArrow.style.transform = "translateX(-50%) rotate(0deg)";
+                startCompass.disabled = false;
+                stopCompass.disabled = true;
+            }
+
+            function toggleAthanAlarm(prayer) {
+                activeAlarms[prayer] = !activeAlarms[prayer];
+                updateAthanButton(prayer);
+                saveAlarms();
+                
+                const prayerName = getPrayerArabicName(prayer.charAt(0).toUpperCase() + prayer.slice(1));
+                const message = activeAlarms[prayer] ? 
+                    `تم تفعيل التنبيه لصلاة ${prayerName}` : 
+                    `تم إلغاء التنبيه لصلاة ${prayerName}`;
+                
+                showNotification(message, "success");
+            }
+
+            function updateAthanButton(prayer) {
+                const button = document.querySelector(`.athan-btn[data-prayer="${prayer}"]`);
+                if (button) {
+                    if (activeAlarms[prayer]) {
+                        button.innerHTML = '<i class="fas fa-bell-slash"></i> إلغاء التنبيه';
+                        button.style.backgroundColor = "#f44336";
+                    } else {
+                        button.innerHTML = '<i class="fas fa-bell"></i> تنبيه';
+                        button.style.backgroundColor = "";
+                    }
+                }
+            }
+
+            function showPrayerAlert(prayer) {
+                const prayerName = getPrayerArabicName(prayer);
+                alertPrayerName.textContent = `حان وقت صلاة ${prayerName}`;
+                
+                athanAudio.currentTime = 0;
+                athanAudio.play().catch(e => console.error('Error playing athan:', e));
+                
+                prayerAlert.style.display = 'flex';
+                
+                setTimeout(() => {
+                    if (!prayerAlert.style.display || prayerAlert.style.display !== 'none') {
+                        stopAthanFunction();
+                    }
+                }, 5 * 60 * 1000);
+            }
+
+            function stopAthanFunction() {
+                athanAudio.pause();
+                athanAudio.currentTime = 0;
+                prayerAlert.style.display = 'none';
+            }
+
+            function closeAlertFunction() {
+                stopAthanFunction();
+            }
+
+            function checkAlarms() {
+                if (!prayerTimesData.timings) return;
+                
+                const now = new Date();
+                const currentTime = now.getHours() * 60 + now.getMinutes();
+                const prayerTimes = {
+                    fajr: convertTimeToMinutes(prayerTimesData.timings.Fajr),
+                    dhuhr: convertTimeToMinutes(prayerTimesData.timings.Dhuhr),
+                    asr: convertTimeToMinutes(prayerTimesData.timings.Asr),
+                    maghrib: convertTimeToMinutes(prayerTimesData.timings.Maghrib),
+                    isha: convertTimeToMinutes(prayerTimesData.timings.Isha)
+                };
+                
+                const prayerThreshold = 2;
+                
+                for (const [prayer, time] of Object.entries(prayerTimes)) {
+                    if (Math.abs(currentTime - time) <= prayerThreshold && activeAlarms[prayer]) {
+                        showPrayerAlert(prayer);
+                        break;
+                    }
+                }
+            }
+
+            function saveAlarms() {
+                localStorage.setItem('prayerAlarms', JSON.stringify(activeAlarms));
+            }
+
+            function loadAlarms() {
+                const savedAlarms = localStorage.getItem('prayerAlarms');
+                if (savedAlarms) {
+                    activeAlarms = JSON.parse(savedAlarms);
+                    
+                    for (const prayer in activeAlarms) {
+                        if (activeAlarms[prayer]) {
+                            updateAthanButton(prayer);
+                        }
+                    }
+                }
+            }
+
+            // تحديث سنة حقوق النشر
+            document.getElementById('current-year').textContent = new Date().getFullYear();
         });
     </script>
 </body>
