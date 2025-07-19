@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>البوصلة - للأجهزة المحمولة فقط</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        #desktop-message {
+            display: none;
+            padding: 20px;
+            background-color: #ffebee;
+            border: 1px solid #ef9a9a;
+            border-radius: 5px;
+            margin: 50px auto;
+            max-width: 600px;
+        }
+        
+        #compass-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 80vh;
+        }
+        
+        .compass {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            margin: 20px auto;
+        }
+        
+        .compass-arrow {
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 120px solid red;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: bottom center;
+            transform: translate(-50%, -100%);
+        }
+        
+        .compass-circle {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 2px solid #333;
+            border-radius: 50%;
+        }
+        
+        .compass-directions {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            font-weight: bold;
+        }
+        
+        .direction {
+            position: absolute;
+            font-size: 16px;
+        }
+        
+        .north {
+            top: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .east {
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .south {
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .west {
+            left: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        #degree {
+            font-size: 24px;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        
+        .instructions {
+            margin-top: 20px;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            #desktop-message {
+                display: none !important;
+            }
+            
+            #compass-container {
+                display: flex !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="desktop-message">
+        <h2>عذرًا، البوصلة تعمل فقط على أجهزة الجوال</h2>
+        <p>هذه البوصلة مصممة للعمل على الهواتف الذكية والأجهزة اللوحية فقط لأنها تحتاج إلى مستشعر الجيروسكوب الموجود في هذه الأجهزة.</p>
+        <p>يرجى فتح الموقع على جهازك المحمول لتجربة البوصلة.</p>
+    </div>
+    
+    <div id="compass-container">
+        <h1>البوصلة الرقمية</h1>
+        
+        <div class="compass">
+            <div class="compass-circle"></div>
+            <div class="compass-arrow" id="arrow"></div>
+            <div class="compass-directions">
+                <span class="direction north">شمال</span>
+                <span class="direction east">شرق</span>
+                <span class="direction south">جنوب</span>
+                <span class="direction west">غرب</span>
+            </div>
+        </div>
+        
+        <div id="degree">0°</div>
+        
+        <div class="instructions">
+            أمسك جهازك بشكل أفقي لاستخدام البوصلة
+        </div>
+    </div>
+    
+    <script>
+        // التحقق من نوع الجهاز
+        function isMobileDevice() {
+            return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+        }
+        
+        // عرض الرسالة المناسبة حسب نوع الجهاز
+        if (!isMobileDevice()) {
+            document.getElementById('desktop-message').style.display = 'block';
+            document.getElementById('compass-container').style.display = 'none';
+        } else {
+            document.getElementById('desktop-message').style.display = 'none';
+            document.getElementById('compass-container').style.display = 'flex';
+            
+            // بدء البوصلة إذا كان الجهاز محمولاً
+            startCompass();
+        }
+        
+        function startCompass() {
+            const arrow = document.getElementById('arrow');
+            const degreeDisplay = document.getElementById('degree');
+            
+            // التحقق من دعم المستشعر
+            if (!window.DeviceOrientationEvent) {
+                degreeDisplay.textContent = 'جهازك لا يدعم البوصلة';
+                return;
+            }
+            
+            // طلب الإذن للوصول إلى مستشعر الجهاز (لأجهزة iOS 13+)
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(response => {
+                        if (response === 'granted') {
+                            window.addEventListener('deviceorientation', handleOrientation);
+                        } else {
+                            degreeDisplay.textContent = 'تم رفض الإذن لاستخدام البوصلة';
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                // للأجهزة الأخرى
+                window.addEventListener('deviceorientation', handleOrientation);
+            }
+            
+            function handleOrientation(event) {
+                const compass = event.webkitCompassHeading || Math.abs(event.alpha - 360);
+                
+                if (compass !== null) {
+                    arrow.style.transform = `translate(-50%, -100%) rotate(${-compass}deg)`;
+                    degreeDisplay.textContent = `${Math.round(compass)}°`;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
