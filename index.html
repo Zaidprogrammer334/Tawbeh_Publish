@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>البوصلة - للأجهزة المحمولة فقط</title>
+    <title>بوصلة القبلة - للأجهزة المحمولة</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -11,6 +11,7 @@
             margin: 0;
             padding: 20px;
             background-color: #f5f5f5;
+            color: #333;
         }
         
         #desktop-message {
@@ -32,11 +33,11 @@
         }
         
         .compass {
-            width: 250px;
-            height: 250px;
+            width: 280px;
+            height: 280px;
             border-radius: 50%;
             background-color: #fff;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
             position: relative;
             margin: 20px auto;
         }
@@ -44,14 +45,30 @@
         .compass-arrow {
             width: 0;
             height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-bottom: 120px solid red;
+            border-left: 18px solid transparent;
+            border-right: 18px solid transparent;
+            border-bottom: 140px solid #d40000;
             position: absolute;
             top: 50%;
             left: 50%;
             transform-origin: bottom center;
             transform: translate(-50%, -100%);
+            z-index: 2;
+        }
+        
+        .qibla-arrow {
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 100px solid #0a5c36;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-origin: top center;
+            transform: translate(-50%, 0%);
+            z-index: 1;
+            opacity: 0.9;
         }
         
         .compass-circle {
@@ -60,7 +77,7 @@
             left: 10px;
             right: 10px;
             bottom: 10px;
-            border: 2px solid #333;
+            border: 3px solid #333;
             border-radius: 50%;
         }
         
@@ -73,13 +90,14 @@
         
         .direction {
             position: absolute;
-            font-size: 16px;
+            font-size: 18px;
         }
         
         .north {
             top: 5px;
             left: 50%;
             transform: translateX(-50%);
+            color: #d40000;
         }
         
         .east {
@@ -100,14 +118,43 @@
             transform: translateY(-50%);
         }
         
-        #degree {
-            font-size: 24px;
-            margin-top: 20px;
+        .qibla-marker {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background-color: #0a5c36;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
             font-weight: bold;
         }
         
-        .instructions {
+        #degree-info {
+            font-size: 22px;
             margin-top: 20px;
+            font-weight: bold;
+            background-color: #f0f0f0;
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .instructions {
+            margin-top: 25px;
+            color: #555;
+            line-height: 1.6;
+            max-width: 300px;
+        }
+        
+        .location-info {
+            margin-top: 15px;
+            font-size: 14px;
             color: #666;
         }
         
@@ -124,29 +171,38 @@
 </head>
 <body>
     <div id="desktop-message">
-        <h2>عذرًا، البوصلة تعمل فقط على أجهزة الجوال</h2>
-        <p>هذه البوصلة مصممة للعمل على الهواتف الذكية والأجهزة اللوحية فقط لأنها تحتاج إلى مستشعر الجيروسكوب الموجود في هذه الأجهزة.</p>
-        <p>يرجى فتح الموقع على جهازك المحمول لتجربة البوصلة.</p>
+        <h2>عذرًا، بوصلة القبلة تعمل فقط على أجهزة الجوال</h2>
+        <p>هذه البوصلة مصممة للعمل على الهواتف الذكية والأجهزة اللوحية فقط لأنها تحتاج إلى مستشعر الجيروسكوب وخدمة الموقع.</p>
+        <p>يرجى فتح الموقع على جهازك المحمول لتحديد اتجاه القبلة بدقة.</p>
     </div>
     
     <div id="compass-container">
-        <h1>البوصلة الرقمية</h1>
+        <h1 style="color: #0a5c36;">بوصلة القبلة</h1>
         
         <div class="compass">
             <div class="compass-circle"></div>
             <div class="compass-arrow" id="arrow"></div>
+            <div class="qibla-arrow" id="qibla-arrow"></div>
+            <div class="qibla-marker">ق</div>
             <div class="compass-directions">
-                <span class="direction north">شمال</span>
+                <span class="direction north">ش</span>
                 <span class="direction east">شرق</span>
-                <span class="direction south">جنوب</span>
+                <span class="direction south">ج</span>
                 <span class="direction west">غرب</span>
             </div>
         </div>
         
-        <div id="degree">0°</div>
+        <div id="degree-info">
+            <div>اتجاه القبلة: <span id="qibla-degree">--°</span></div>
+            <div>الانحراف عن الشمال: <span id="offset-degree">--°</span></div>
+        </div>
+        
+        <div class="location-info" id="location-info">
+            جاري تحديد موقعك...
+        </div>
         
         <div class="instructions">
-            أمسك جهازك بشكل أفقي لاستخدام البوصلة
+            أمسك جهازك بشكل أفقي واتبع السهم الأخضر الذي يشير إلى اتجاه الكعبة المشرفة
         </div>
     </div>
     
@@ -156,6 +212,11 @@
             return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
         }
         
+        // متغيرات البوصلة
+        let currentPosition = null;
+        let qiblaDirection = null;
+        let watchId = null;
+        
         // عرض الرسالة المناسبة حسب نوع الجهاز
         if (!isMobileDevice()) {
             document.getElementById('desktop-message').style.display = 'block';
@@ -164,17 +225,92 @@
             document.getElementById('desktop-message').style.display = 'none';
             document.getElementById('compass-container').style.display = 'flex';
             
-            // بدء البوصلة إذا كان الجهاز محمولاً
-            startCompass();
+            // بدء تحديد الموقع والبوصلة
+            initCompass();
+        }
+        
+        function initCompass() {
+            // طلب الإذن للوصول إلى الموقع (لأجهزة iOS)
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        currentPosition = position;
+                        calculateQiblaDirection();
+                        startCompass();
+                    },
+                    error => {
+                        document.getElementById('location-info').textContent = 
+                            'تعذر الحصول على الموقع: ' + error.message;
+                        // استخدام موقع افتراضي (مكة) إذا لم يتمكن من الحصول على الموقع
+                        currentPosition = {
+                            coords: {
+                                latitude: 21.3891,
+                                longitude: 39.8579
+                            }
+                        };
+                        calculateQiblaDirection();
+                        startCompass();
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                );
+            } else {
+                document.getElementById('location-info').textContent = 
+                    'المتصفح لا يدخدم خدمة الموقع';
+            }
+        }
+        
+        function calculateQiblaDirection() {
+            if (!currentPosition) return;
+            
+            // إحداثيات الكعبة المشرفة
+            const kaabaLat = 21.3891;
+            const kaabaLng = 39.8579;
+            
+            // إحداثيات المستخدم
+            const userLat = currentPosition.coords.latitude;
+            const userLng = currentPosition.coords.longitude;
+            
+            // حساب اتجاه القبلة باستخدام صيغة حسابية دقيقة
+            const phiK = kaabaLat * Math.PI / 180.0;
+            const lambdaK = kaabaLng * Math.PI / 180.0;
+            const phi = userLat * Math.PI / 180.0;
+            const lambda = userLng * Math.PI / 180.0;
+            
+            const psi = 180.0 / Math.PI * Math.atan2(
+                Math.sin(lambdaK - lambda),
+                Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda)
+            );
+            
+            qiblaDirection = (psi + 360.0) % 360.0;
+            
+            // عرض معلومات الموقع
+            document.getElementById('location-info').innerHTML = `
+                خط العرض: ${userLat.toFixed(4)}° | خط الطول: ${userLng.toFixed(4)}°<br>
+                البعد عن الكعبة: ${calculateDistance(userLat, userLng, kaabaLat, kaabaLng).toFixed(0)} كم
+            `;
+            
+            document.getElementById('qibla-degree').textContent = `${Math.round(qiblaDirection)}°`;
+        }
+        
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // نصف قطر الأرض بالكيلومترات
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return R * c;
         }
         
         function startCompass() {
             const arrow = document.getElementById('arrow');
-            const degreeDisplay = document.getElementById('degree');
+            const qiblaArrow = document.getElementById('qibla-arrow');
             
             // التحقق من دعم المستشعر
             if (!window.DeviceOrientationEvent) {
-                degreeDisplay.textContent = 'جهازك لا يدعم البوصلة';
+                document.getElementById('degree-info').textContent = 'جهازك لا يدعم البوصلة';
                 return;
             }
             
@@ -185,7 +321,7 @@
                         if (response === 'granted') {
                             window.addEventListener('deviceorientation', handleOrientation);
                         } else {
-                            degreeDisplay.textContent = 'تم رفض الإذن لاستخدام البوصلة';
+                            document.getElementById('degree-info').textContent = 'تم رفض الإذن لاستخدام البوصلة';
                         }
                     })
                     .catch(console.error);
@@ -195,11 +331,28 @@
             }
             
             function handleOrientation(event) {
-                const compass = event.webkitCompassHeading || Math.abs(event.alpha - 360);
+                if (qiblaDirection === null) return;
                 
-                if (compass !== null) {
-                    arrow.style.transform = `translate(-50%, -100%) rotate(${-compass}deg)`;
-                    degreeDisplay.textContent = `${Math.round(compass)}°`;
+                // الحصول على اتجاه الشمال المغناطيسي
+                let compassHeading = null;
+                
+                if (event.webkitCompassHeading !== undefined) {
+                    // لأجهزة iOS
+                    compassHeading = event.webkitCompassHeading;
+                } else if (event.absolute !== undefined && event.alpha !== null) {
+                    // لأجهزة Android
+                    compassHeading = 360 - event.alpha;
+                }
+                
+                if (compassHeading !== null) {
+                    // حساب انحراف القبلة عن الشمال المغناطيسي
+                    const qiblaOffset = (compassHeading - qiblaDirection + 360) % 360;
+                    
+                    // تحديث عرض البوصلة
+                    arrow.style.transform = `translate(-50%, -100%) rotate(${-compassHeading}deg)`;
+                    qiblaArrow.style.transform = `translate(-50%, 0%) rotate(${-qiblaOffset}deg)`;
+                    
+                    document.getElementById('offset-degree').textContent = `${Math.round(qiblaOffset)}°`;
                 }
             }
         }
