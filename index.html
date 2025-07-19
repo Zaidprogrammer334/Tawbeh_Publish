@@ -3,81 +3,265 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوصلة القبلة - للأجهزة المحمولة</title>
+    <meta name="description" content="مواقيت الصلاة - تطبيق توبة">
+    <meta name="theme-color" content="#2e7d32">
+    <title>مواقيت الصلاة - توبتي</title>
+    
+    <!-- تحميل الخطوط -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- تحميل الأيقونات -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
+        /* أنماط عامة */
+        :root {
+            --primary-color: #2e7d32;
+            --primary-dark: #1b5e20;
+            --light-color: #f5f5f5;
+            --text-color: #333;
+            --gold-color: #ffc107;
+            --error-color: #dc3545;
+            --qibla-color: #0a5c36;
+        }
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
+            padding: 0;
         }
         
-        #desktop-message {
-            display: none;
-            padding: 20px;
-            background-color: #ffebee;
-            border: 1px solid #ef9a9a;
-            border-radius: 5px;
-            margin: 50px auto;
-            max-width: 600px;
+        body {
+            font-family: 'Tajawal', sans-serif;
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            line-height: 1.6;
         }
         
-        #compass-container {
-            display: none;
-            flex-direction: column;
+        /* شريط التنقل */
+        .NavBar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: var(--primary-color);
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .nav-container {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
-            height: 80vh;
+            padding: 0 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            height: 70px;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        /* المحتوى الرئيسي */
+        .main-content {
+            margin-top: 80px;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            border-radius: 10px;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .verse {
+            background-color: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-right: 3px solid var(--gold-color);
+        }
+        
+        /* قسم مواقيت الصلاة */
+        .sections-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .section-subtitle {
+            color: #666;
+            font-size: 1rem;
+        }
+        
+        /* مواقيت الصلاة */
+        .time-remaining {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        
+        #remainingTime {
+            font-weight: bold;
+            font-size: 1.3rem;
+            color: var(--gold-color);
+        }
+        
+        .prayer-times {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .prayer {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #eee;
+            transition: all 0.3s ease;
+        }
+        
+        .prayer:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .prayer-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .prayer-name {
+            font-size: 1.2rem;
+            font-weight: 500;
+            color: var(--primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .prayer-name i {
+            color: var(--gold-color);
+        }
+        
+        .prayer-time {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+        
+        .athan-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .athan-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .prayer-benefit {
+            display: none;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-right: 3px solid var(--primary-color);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+        
+        .prayer-benefit.show {
+            display: block;
+        }
+        
+        /* البوصلة المعدلة */
+        .compass-container {
+            text-align: center;
+            padding: 20px 0;
         }
         
         .compass {
-            width: 280px;
-            height: 280px;
-            border-radius: 50%;
-            background-color: #fff;
-            box-shadow: 0 0 25px rgba(0, 0, 0, 0.15);
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 20px;
             position: relative;
-            margin: 20px auto;
+            border-radius: 50%;
+            background-color: #f0f0f0;
+            border: 5px solid var(--primary-color);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
         
-        .compass-arrow {
+        .qibla-arrow {
             width: 0;
             height: 0;
-            border-left: 18px solid transparent;
-            border-right: 18px solid transparent;
-            border-bottom: 140px solid #d40000;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 100px solid var(--qibla-color);
             position: absolute;
             top: 50%;
             left: 50%;
             transform-origin: bottom center;
             transform: translate(-50%, -100%);
             z-index: 2;
-        }
-        
-        .qibla-arrow {
-            width: 0;
-            height: 0;
-            border-left: 12px solid transparent;
-            border-right: 12px solid transparent;
-            border-top: 100px solid #0a5c36;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform-origin: top center;
-            transform: translate(-50%, 0%);
-            z-index: 1;
             opacity: 0.9;
         }
         
         .compass-circle {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
-            border: 3px solid #333;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border: 2px solid #333;
             border-radius: 50%;
         }
         
@@ -90,30 +274,30 @@
         
         .direction {
             position: absolute;
-            font-size: 18px;
+            font-size: 16px;
         }
         
         .north {
-            top: 5px;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
             color: #d40000;
         }
         
         .east {
-            right: 5px;
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
         }
         
         .south {
-            bottom: 5px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
         }
         
         .west {
-            left: 5px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
         }
@@ -122,7 +306,7 @@
             position: absolute;
             width: 30px;
             height: 30px;
-            background-color: #0a5c36;
+            background-color: var(--qibla-color);
             border-radius: 50%;
             top: 50%;
             left: 50%;
@@ -135,227 +319,1066 @@
             font-weight: bold;
         }
         
-        #degree-info {
-            font-size: 22px;
-            margin-top: 20px;
-            font-weight: bold;
-            background-color: #f0f0f0;
-            padding: 10px 20px;
-            border-radius: 20px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        .compass-info {
+            margin: 15px 0;
+            font-size: 1.1rem;
         }
         
-        .instructions {
-            margin-top: 25px;
-            color: #555;
-            line-height: 1.6;
-            max-width: 300px;
+        #qibla-degree {
+            font-weight: bold;
+            color: var(--qibla-color);
+        }
+        
+        .compass-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 5px;
+            transition: all 0.3s;
+        }
+        
+        .compass-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .compass-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        
+        .desktop-compass-message {
+            display: none;
+            padding: 15px;
+            background-color: #fff3cd;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            border-right: 3px solid var(--gold-color);
+            text-align: center;
         }
         
         .location-info {
-            margin-top: 15px;
-            font-size: 14px;
+            margin: 15px 0;
+            font-size: 0.9rem;
             color: #666;
         }
         
+        /* نافذة التنبيه */
+        .prayer-alert {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .alert-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+        
+        .alert-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+        
+        .alert-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .alert-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .stop-btn {
+            background-color: var(--error-color);
+            color: white;
+        }
+        
+        .close-btn {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        /* زر العودة للأعلى */
+        .scroll-top {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+            z-index: 999;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            border: none;
+        }
+        
+        .scroll-top.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .scroll-top:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+        }
+        
+        /* إشعارات */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s;
+        }
+        
+        .notification.success {
+            background-color: var(--primary-color);
+        }
+        
+        .notification.error {
+            background-color: var(--error-color);
+        }
+        
+        /* التذييل */
+        .footer {
+            background-color: var(--primary-dark);
+            color: white;
+            padding: 40px 0 0;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 8px;
+        }
+        
+        .footer-section ul li a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .footer-section ul li a:hover {
+            color: white;
+            padding-right: 5px;
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            padding: 15px;
+            background-color: rgba(0,0,0,0.1);
+            margin-top: 30px;
+        }
+        
+        /* وسائط متجاوبة */
         @media (max-width: 768px) {
-            #desktop-message {
+            .nav-container {
+                height: 60px;
+                padding: 0 15px;
+            }
+            
+            .main-content {
+                margin-top: 60px;
+                padding: 15px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .section {
+                padding: 15px;
+            }
+            
+            .prayer-info {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .athan-btn {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .desktop-compass-message {
                 display: none !important;
             }
             
-            #compass-container {
-                display: flex !important;
+            .alert-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .alert-btn {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <div id="desktop-message">
-        <h2>عذرًا، بوصلة القبلة تعمل فقط على أجهزة الجوال</h2>
-        <p>هذه البوصلة مصممة للعمل على الهواتف الذكية والأجهزة اللوحية فقط لأنها تحتاج إلى مستشعر الجيروسكوب وخدمة الموقع.</p>
-        <p>يرجى فتح الموقع على جهازك المحمول لتحديد اتجاه القبلة بدقة.</p>
+    <!-- شريط التنقل -->
+    <nav class="NavBar">
+        <div class="nav-container">
+            <div class="logo">
+                <span>توبــــة</span>
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a class="menu__link" href="index.html"><i class="fas fa-home"></i> الرئيسية</a>
+                <a class="menu__link" href="salah_page.html"><i class="fas fa-clock"></i> مواقيت الصلاة</a>
+                <a class="menu__link" href="adhkar_page.html"><i class="fas fa-dharmachakra"></i> أذكار</a>
+                <a class="menu__link" href="quran_page.html"><i class="fas fa-quran"></i> القرآن الكريم</a>
+                <a class="menu__link" href="hadith_page.html"><i class="fas fa-book-open"></i> الحديث الشريف</a>
+                <a class="menu__link" href="tawbah_page.html"><i class="fas fa-hands-praying"></i> توبتي</a>
+            </div>
+            <button class="hamburger" id="hamburger" aria-label="قائمة">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- نافذة التنبيه -->
+    <div id="prayerAlert" class="prayer-alert">
+        <div class="alert-content">
+            <h2 id="alertPrayerName">حان وقت صلاة الفجر</h2>
+            <p>الله أكبر، الله أكبر، الله أكبر</p>
+            <audio id="athanAudio" controls loop>
+                <source src="https://www.islamcan.com/athan/azan1.mp3" type="audio/mpeg">
+                متصفحك لا يدعم تشغيل الصوت.
+            </audio>
+            <div class="alert-buttons">
+                <button id="stopAthan" class="alert-btn stop-btn">إيقاف الأذان</button>
+                <button id="closeAlert" class="alert-btn close-btn">إغلاق</button>
+            </div>
+        </div>
     </div>
-    
-    <div id="compass-container">
-        <h1 style="color: #0a5c36;">بوصلة القبلة</h1>
-        
-        <div class="compass">
-            <div class="compass-circle"></div>
-            <div class="compass-arrow" id="arrow"></div>
-            <div class="qibla-arrow" id="qibla-arrow"></div>
-            <div class="qibla-marker">ق</div>
-            <div class="compass-directions">
-                <span class="direction north">ش</span>
-                <span class="direction east">شرق</span>
-                <span class="direction south">ج</span>
-                <span class="direction west">غرب</span>
+
+    <!-- المحتوى الرئيسي -->
+    <div class="main-content">
+        <div class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-clock"></i> مواقيت الصلاة</h1>
+                <p class="subtitle">مواقيت الصلاة الدقيقة حسب موقعك الحالي</p>
+                <div class="verse">
+                    <p><i class="fas fa-quote-right"></i> {إِنَّ الصَّلَاةَ كَانَتْ عَلَى الْمُؤْمِنِينَ كِتَابًا مَّوْقُوتًا}</p>
+                    <p class="ref">[النساء:103]</p>
+                </div>
             </div>
         </div>
         
-        <div id="degree-info">
-            <div>اتجاه القبلة: <span id="qibla-degree">--°</span></div>
-            <div>الانحراف عن الشمال: <span id="offset-degree">--°</span></div>
-        </div>
-        
-        <div class="location-info" id="location-info">
-            جاري تحديد موقعك...
-        </div>
-        
-        <div class="instructions">
-            أمسك جهازك بشكل أفقي واتبع السهم الأخضر الذي يشير إلى اتجاه الكعبة المشرفة
+        <div class="sections-container">
+            <!-- قسم مواقيت الصلاة -->
+            <div class="section" id="prayer-times-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-calendar-alt"></i> مواقيت اليوم</h2>
+                    <p class="section-subtitle">مواقيت الصلاة مع فضائل كل صلاة</p>
+                </div>
+                <div class="time-remaining">
+                    <p id="nextPrayerInfo">الوقت المتبقي لصلاة الفجر: <span id="remainingTime">--:--:--</span></p>
+                </div>
+                <div class="prayer-times" id="prayerTimes">
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-sun"></i> الفجر</span>
+                            <span class="prayer-time" id="fajrTime">جاري التحميل...</span>
+                            <button class="athan-btn" data-prayer="fajr"><i class="fas fa-bell"></i> تنبيه</button>
+                        </div>
+                        <div class="prayer-benefit">
+                            <p>فضل صلاة الفجر: شهادة من الملائكة، حماية الله، نور يوم القيامة، براءة من النفاق، دخول الجنة، بركة في الرزق والعمل.</p>
+                        </div>
+                    </div>
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-sun"></i> الشروق</span>
+                            <span class="prayer-time" id="sunriseTime">جاري التحميل...</span>
+                        </div>
+                    </div>
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-sun"></i> الظهر</span>
+                            <span class="prayer-time" id="dhuhrTime">جاري التحميل...</span>
+                            <button class="athan-btn" data-prayer="dhuhr"><i class="fas fa-bell"></i> تنبيه</button>
+                        </div>
+                        <div class="prayer-benefit">
+                            <p>فضل صلاة الظهر: الالتزام بأمر الله، تكفير الذنوب، الاستراحة الروحية، البركة في الوقت.</p>
+                        </div>
+                    </div>
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-sun"></i> العصر</span>
+                            <span class="prayer-time" id="asrTime">جاري التحميل...</span>
+                            <button class="athan-btn" data-prayer="asr"><i class="fas fa-bell"></i> تنبيه</button>
+                        </div>
+                        <div class="prayer-benefit">
+                            <p>فضل صلاة العصر: الصلاة الوسطى، سبب لدخول الجنة، تكفير الذنوب، الاستراحة الروحية.</p>
+                        </div>
+                    </div>
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-moon"></i> المغرب</span>
+                            <span class="prayer-time" id="maghribTime">جاري التحميل...</span>
+                            <button class="athan-btn" data-prayer="maghrib"><i class="fas fa-bell"></i> تنبيه</button>
+                        </div>
+                        <div class="prayer-benefit">
+                            <p>فضل صلاة المغرب: الالتزام بأمر الله، سبب لدخول الجنة، تكفير الذنوب، الاستراحة الروحية.</p>
+                        </div>
+                    </div>
+                    <div class="prayer">
+                        <div class="prayer-info">
+                            <span class="prayer-name"><i class="fas fa-moon"></i> العشاء</span>
+                            <span class="prayer-time" id="ishaTime">جاري التحميل...</span>
+                            <button class="athan-btn" data-prayer="isha"><i class="fas fa-bell"></i> تنبيه</button>
+                        </div>
+                        <div class="prayer-benefit">
+                            <p>فضل صلاة العشاء: تعدل قيام نصف الليل، دليل على قوة الإيمان، سبب للنجاة من النار، تمنح الطمأنينة.</p>
+                        </div>
+                    </div>
+                    <div class="retry-container" id="retryContainer" style="display: none;">
+                        <button id="retryButton" class="btn retry-btn">
+                            <i class="fas fa-sync-alt"></i> إعادة المحاولة
+                        </button>
+                        <p class="retry-message">تعذر جلب البيانات. يرجى التحقق من اتصال الإنترنت والمحاولة مرة أخرى.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- قسم البوصلة المعدلة -->
+            <div class="section" id="compass-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-compass"></i> اتجاه القبلة</h2>
+                    <p class="section-subtitle">حدد اتجاه القبلة باستخدام البوصلة</p>
+                </div>
+                <div class="desktop-compass-message" id="desktopCompassMessage">
+                    <i class="fas fa-info-circle"></i> البوصلة تعمل فقط على الأجهزة المحمولة. يرجى فتح الموقع على هاتفك الذكي لاستخدام هذه الميزة.
+                </div>
+                <div class="compass-container">
+                    <div class="compass">
+                        <div class="compass-circle"></div>
+                        <div class="qibla-arrow" id="qibla-arrow"></div>
+                        <div class="qibla-marker">ق</div>
+                        <div class="compass-directions">
+                            <span class="direction north">ش</span>
+                            <span class="direction east">شرق</span>
+                            <span class="direction south">ج</span>
+                            <span class="direction west">غرب</span>
+                        </div>
+                    </div>
+                    <div class="compass-info">
+                        <p id="compassStatus">جاري تحديد الاتجاه...</p>
+                        <p>اتجاه القبلة: <span id="qibla-degree">--°</span></p>
+                    </div>
+                    <div class="location-info" id="location-info">
+                        جاري تحديد موقعك...
+                    </div>
+                    <button id="startCompass" class="compass-btn">تشغيل البوصلة</button>
+                    <button id="stopCompass" class="compass-btn" disabled>إيقاف البوصلة</button>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- إشعارات -->
+    <div id="notification" class="notification"></div>
+
+    <!-- التذييل -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3><i class="fas fa-info-circle"></i> عن التطبيق</h3>
+                <p>تطبيق توبة يهدف إلى مساعدة المسلمين في المحافظة على الصلوات في أوقاتها</p>
+            </div>
+            <div class="footer-section">
+                <h3><i class="fas fa-link"></i> روابط سريعة</h3>
+                <ul>
+                    <li><a href="index.html">الصفحة الرئيسية</a></li>
+                    <li><a href="salah_page.html">مواقيت الصلاة</a></li>
+                    <li><a href="adhkar_page.html">الأذكار اليومية</a></li>
+                    <li><a href="quran_page.html">القرآن الكريم</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3><i class="fas fa-envelope"></i> تواصل معنا</h3>
+                <p>للاستفسارات أو المقترحات، يرجى التواصل عبر البريد الإلكتروني:</p>
+                <p>info@tawbaty.com</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; <span id="current-year">2025</span> توبتي - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+    
+    <!-- زر العودة للأعلى -->
+    <button class="scroll-top" id="scrollTop" aria-label="العودة إلى الأعلى">
+        <i class="fas fa-arrow-up"></i>
+    </button>
     
     <script>
-        // التحقق من نوع الجهاز
-        function isMobileDevice() {
-            return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
-        }
-        
-        // متغيرات البوصلة
-        let currentPosition = null;
-        let qiblaDirection = null;
-        let watchId = null;
-        
-        // عرض الرسالة المناسبة حسب نوع الجهاز
-        if (!isMobileDevice()) {
-            document.getElementById('desktop-message').style.display = 'block';
-            document.getElementById('compass-container').style.display = 'none';
-        } else {
-            document.getElementById('desktop-message').style.display = 'none';
-            document.getElementById('compass-container').style.display = 'flex';
+        document.addEventListener('DOMContentLoaded', function() {
+            // عناصر DOM
+            const hamburger = document.getElementById('hamburger');
+            const navLinks = document.getElementById('navLinks');
+            const scrollTopBtn = document.getElementById('scrollTop');
+            const notification = document.getElementById('notification');
+            const retryButton = document.getElementById('retryButton');
+            const retryContainer = document.getElementById('retryContainer');
+            const desktopCompassMessage = document.getElementById('desktopCompassMessage');
             
-            // بدء تحديد الموقع والبوصلة
-            initCompass();
-        }
-        
-        function initCompass() {
-            // طلب الإذن للوصول إلى الموقع (لأجهزة iOS)
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    position => {
-                        currentPosition = position;
-                        calculateQiblaDirection();
-                        startCompass();
-                    },
-                    error => {
-                        document.getElementById('location-info').textContent = 
-                            'تعذر الحصول على الموقع: ' + error.message;
-                        // استخدام موقع افتراضي (مكة) إذا لم يتمكن من الحصول على الموقع
-                        currentPosition = {
-                            coords: {
-                                latitude: 21.3891,
-                                longitude: 39.8579
-                            }
-                        };
-                        calculateQiblaDirection();
-                        startCompass();
-                    },
-                    { enableHighAccuracy: true, timeout: 10000 }
-                );
-            } else {
-                document.getElementById('location-info').textContent = 
-                    'المتصفح لا يدخدم خدمة الموقع';
-            }
-        }
-        
-        function calculateQiblaDirection() {
-            if (!currentPosition) return;
+            // عناصر مواقيت الصلاة
+            const sunriseTime = document.getElementById('sunriseTime');
+            const fajrTime = document.getElementById('fajrTime');
+            const dhuhrTime = document.getElementById('dhuhrTime');
+            const asrTime = document.getElementById('asrTime');
+            const maghribTime = document.getElementById('maghribTime');
+            const ishaTime = document.getElementById('ishaTime');
             
-            // إحداثيات الكعبة المشرفة
-            const kaabaLat = 21.3891;
-            const kaabaLng = 39.8579;
+            // عناصر الوقت المتبقي
+            const nextPrayerInfo = document.getElementById('nextPrayerInfo');
+            const remainingTime = document.getElementById('remainingTime');
             
-            // إحداثيات المستخدم
-            const userLat = currentPosition.coords.latitude;
-            const userLng = currentPosition.coords.longitude;
-            
-            // حساب اتجاه القبلة باستخدام صيغة حسابية دقيقة
-            const phiK = kaabaLat * Math.PI / 180.0;
-            const lambdaK = kaabaLng * Math.PI / 180.0;
-            const phi = userLat * Math.PI / 180.0;
-            const lambda = userLng * Math.PI / 180.0;
-            
-            const psi = 180.0 / Math.PI * Math.atan2(
-                Math.sin(lambdaK - lambda),
-                Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda)
-            );
-            
-            qiblaDirection = (psi + 360.0) % 360.0;
-            
-            // عرض معلومات الموقع
-            document.getElementById('location-info').innerHTML = `
-                خط العرض: ${userLat.toFixed(4)}° | خط الطول: ${userLng.toFixed(4)}°<br>
-                البعد عن الكعبة: ${calculateDistance(userLat, userLng, kaabaLat, kaabaLng).toFixed(0)} كم
-            `;
-            
-            document.getElementById('qibla-degree').textContent = `${Math.round(qiblaDirection)}°`;
-        }
-        
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // نصف قطر الأرض بالكيلومترات
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = 
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
-        }
-        
-        function startCompass() {
-            const arrow = document.getElementById('arrow');
+            // عناصر البوصلة المعدلة
+            const compassStatus = document.getElementById('compassStatus');
+            const qiblaDegree = document.getElementById('qibla-degree');
+            const startCompass = document.getElementById('startCompass');
+            const stopCompass = document.getElementById('stopCompass');
             const qiblaArrow = document.getElementById('qibla-arrow');
+            const locationInfo = document.getElementById('location-info');
             
-            // التحقق من دعم المستشعر
-            if (!window.DeviceOrientationEvent) {
-                document.getElementById('degree-info').textContent = 'جهازك لا يدعم البوصلة';
-                return;
+            // عناصر التنبيه
+            const prayerAlert = document.getElementById('prayerAlert');
+            const alertPrayerName = document.getElementById('alertPrayerName');
+            const athanAudio = document.getElementById('athanAudio');
+            const stopAthan = document.getElementById('stopAthan');
+            const closeAlert = document.getElementById('closeAlert');
+            const athanButtons = document.querySelectorAll('.athan-btn');
+            
+            // عناصر فضائل الصلاة
+            const prayerBenefits = document.querySelectorAll('.prayer-benefit');
+            const prayerNames = document.querySelectorAll('.prayer-name');
+            
+            // متغيرات التتبع
+            let prayerTimesData = {};
+            let nextPrayerTimer = null;
+            let compassWatchId = null;
+            let userLocation = {};
+            let activeAlarms = {
+                fajr: false,
+                dhuhr: false,
+                asr: false,
+                maghrib: false,
+                isha: false
+            };
+
+            // تهيئة الصفحة
+            initPage();
+
+            function initPage() {
+                // أحداث القائمة المنسدلة
+                hamburger.addEventListener('click', toggleMenu);
+                
+                // حدث زر العودة للأعلى
+                scrollTopBtn.addEventListener('click', scrollToTop);
+                window.addEventListener('scroll', toggleScrollTopButton);
+                
+                // أحداث البوصلة
+                startCompass.addEventListener('click', startCompassFunction);
+                stopCompass.addEventListener('click', stopCompassFunction);
+                
+                // أحداث التنبيه
+                stopAthan.addEventListener('click', stopAthanFunction);
+                closeAlert.addEventListener('click', closeAlertFunction);
+                retryButton.addEventListener('click', fetchPrayerTimes);
+                
+                // أحداث أزرار التنبيه
+                athanButtons.forEach(btn => {
+                    btn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        const prayer = this.getAttribute('data-prayer');
+                        toggleAthanAlarm(prayer);
+                    });
+                });
+                
+                // أحداث عرض فضائل الصلاة
+                prayerNames.forEach((name, index) => {
+                    name.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        prayerBenefits[index].classList.toggle('show');
+                    });
+                });
+                
+                // جلب مواقيت الصلاة
+                fetchPrayerTimes();
+                
+                // تحميل التنبيهات المحفوظة
+                loadAlarms();
+                
+                // التحقق من نوع الجهاز للبوصلة
+                checkDeviceForCompass();
+                
+                // تحديث سنة حقوق النشر
+                document.getElementById('current-year').textContent = new Date().getFullYear();
             }
-            
-            // طلب الإذن للوصول إلى مستشعر الجهاز (لأجهزة iOS 13+)
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                DeviceOrientationEvent.requestPermission()
+
+            function toggleMenu() {
+                navLinks.classList.toggle('active');
+                const isExpanded = navLinks.classList.contains('active');
+                hamburger.setAttribute('aria-expanded', isExpanded);
+            }
+
+            function scrollToTop() {
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+
+            function toggleScrollTopButton() {
+                if (window.pageYOffset > 300) {
+                    scrollTopBtn.classList.add('active');
+                } else {
+                    scrollTopBtn.classList.remove('active');
+                }
+            }
+
+            function showNotification(message, type) {
+                notification.textContent = message;
+                notification.className = 'notification ' + type;
+                notification.style.transform = 'translateY(0)';
+                notification.style.opacity = '1';
+                
+                setTimeout(() => {
+                    notification.classList.add('fade-out');
+                    setTimeout(() => {
+                        notification.className = 'notification';
+                        notification.style.transform = 'translateY(100px)';
+                        notification.style.opacity = '0';
+                    }, 500);
+                }, 3000);
+            }
+
+            function checkDeviceForCompass() {
+                if (!isMobileDevice()) {
+                    desktopCompassMessage.style.display = 'block';
+                    startCompass.disabled = true;
+                    compassStatus.textContent = "غير متاح على أجهزة الكمبيوتر";
+                }
+            }
+
+            function isMobileDevice() {
+                return (typeof window.orientation !== "undefined") || (navigator.userAgent.indexOf('IEMobile') !== -1);
+            }
+
+            function fetchPrayerTimes() {
+                const loadingText = "جاري التحميل...";
+                
+                // تعبئة مواقيت الصلاة الافتراضية
+                sunriseTime.textContent = loadingText;
+                fajrTime.textContent = loadingText;
+                dhuhrTime.textContent = loadingText;
+                asrTime.textContent = loadingText;
+                maghribTime.textContent = loadingText;
+                ishaTime.textContent = loadingText;
+                nextPrayerInfo.textContent = "جاري تحديد موعد الصلاة القادمة...";
+                remainingTime.textContent = "--:--:--";
+                retryContainer.style.display = 'none';
+
+                // التحقق من دعم المتصفح لخدمة الموقع
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        position => {
+                            const latitude = position.coords.latitude;
+                            const longitude = position.coords.longitude;
+                            userLocation = { latitude, longitude };
+                            fetchPrayerTimesData(latitude, longitude);
+                        },
+                        error => {
+                            console.error('Error getting location:', error);
+                            fetchLocationByIP();
+                        },
+                        {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 0
+                        }
+                    );
+                } else {
+                    fetchLocationByIP();
+                }
+            }
+
+            function fetchLocationByIP() {
+                fetch('https://ipapi.co/json/')
                     .then(response => {
-                        if (response === 'granted') {
-                            window.addEventListener('deviceorientation', handleOrientation);
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data && data.latitude && data.longitude) {
+                            userLocation = { latitude: data.latitude, longitude: data.longitude };
+                            fetchPrayerTimesData(data.latitude, data.longitude, data.city, data.country_name);
                         } else {
-                            document.getElementById('degree-info').textContent = 'تم رفض الإذن لاستخدام البوصلة';
+                            useDefaultTimes();
                         }
                     })
-                    .catch(console.error);
-            } else {
-                // للأجهزة الأخرى
+                    .catch(error => {
+                        console.error('Error fetching location by IP:', error);
+                        useDefaultTimes();
+                    });
+            }
+
+            function fetchPrayerTimesData(latitude, longitude, city = '', country = '') {
+                const method = 4; // طريقة الحساب (4 = رابطة العالم الإسلامي)
+                const apiUrl = `https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=${method}`;
+
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("API Response:", data);
+                        
+                        if (data && data.data && data.data.timings) {
+                            const timings = data.data.timings;
+                            prayerTimesData = {
+                                timings: timings,
+                                date: data.data.date,
+                                meta: data.data.meta
+                            };
+                            
+                            displayPrayerTimes(timings);
+                            calculateNextPrayer(timings);
+                            
+                            if (nextPrayerTimer) clearInterval(nextPrayerTimer);
+                            nextPrayerTimer = setInterval(() => calculateNextPrayer(timings), 1000);
+                            
+                            checkAlarms();
+                        } else {
+                            throw new Error('Prayer times data not available');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching prayer times:', error);
+                        useDefaultTimes();
+                        retryContainer.style.display = 'block';
+                        showNotification("تعذر جلب مواقيت الصلاة. يرجى المحاولة لاحقاً", "error");
+                    });
+            }
+
+            function displayPrayerTimes(timings) {
+                sunriseTime.textContent = convertTo12HourFormat(timings.Sunrise);
+                fajrTime.textContent = convertTo12HourFormat(timings.Fajr);
+                dhuhrTime.textContent = convertTo12HourFormat(timings.Dhuhr);
+                asrTime.textContent = convertTo12HourFormat(timings.Asr);
+                maghribTime.textContent = convertTo12HourFormat(timings.Maghrib);
+                ishaTime.textContent = convertTo12HourFormat(timings.Isha);
+            }
+
+            function convertTo12HourFormat(time) {
+                const [hours, minutes] = time.split(':');
+                let period = 'ص';
+                let adjustedHours = parseInt(hours);
+
+                if (adjustedHours >= 12) {
+                    period = 'م';
+                    if (adjustedHours > 12) {
+                        adjustedHours -= 12;
+                    }
+                }
+
+                if (adjustedHours === 0) {
+                    adjustedHours = 12;
+                }
+
+                return `${adjustedHours}:${minutes} ${period}`;
+            }
+
+            function calculateNextPrayer(timings) {
+                const now = new Date();
+                const currentHours = now.getHours();
+                const currentMinutes = now.getMinutes();
+                const currentSeconds = now.getSeconds();
+                const currentTime = currentHours * 60 + currentMinutes;
+                
+                const prayerTimes = {
+                    Fajr: convertTimeToMinutes(timings.Fajr),
+                    Sunrise: convertTimeToMinutes(timings.Sunrise),
+                    Dhuhr: convertTimeToMinutes(timings.Dhuhr),
+                    Asr: convertTimeToMinutes(timings.Asr),
+                    Maghrib: convertTimeToMinutes(timings.Maghrib),
+                    Isha: convertTimeToMinutes(timings.Isha)
+                };
+                
+                let nextPrayer = null;
+                let nextPrayerName = '';
+                
+                // البحث عن الصلاة التالية
+                for (const [prayer, time] of Object.entries(prayerTimes)) {
+                    if (time > currentTime || (time === currentTime && currentSeconds < 30)) {
+                        nextPrayer = time;
+                        nextPrayerName = getPrayerArabicName(prayer);
+                        break;
+                    }
+                }
+                
+                // إذا لم نجد صلاة تالية في نفس اليوم، نستخدم صلاة الفجر في اليوم التالي
+                if (!nextPrayer) {
+                    nextPrayer = prayerTimes.Fajr + 24 * 60;
+                    nextPrayerName = getPrayerArabicName('Fajr');
+                }
+                
+                // حساب الوقت المتبقي بالثواني
+                const totalSecondsRemaining = (nextPrayer * 60) - (currentTime * 60 + currentSeconds);
+                const hoursRemaining = Math.floor(totalSecondsRemaining / 3600);
+                const minutesRemaining = Math.floor((totalSecondsRemaining % 3600) / 60);
+                const secondsRemaining = totalSecondsRemaining % 60;
+                
+                // عرض المعلومات
+                nextPrayerInfo.textContent = `الوقت المتبقي لصلاة ${nextPrayerName}:`;
+                remainingTime.textContent = `${hoursRemaining.toString().padStart(2, '0')}:${minutesRemaining.toString().padStart(2, '0')}:${secondsRemaining.toString().padStart(2, '0')}`;
+                
+                // التحقق مما إذا كانت الصلاة الحالية قد حان وقتها
+                checkCurrentPrayer(prayerTimes, currentTime, currentSeconds);
+            }
+
+            function convertTimeToMinutes(timeStr) {
+                const [hours, minutes] = timeStr.split(':').map(Number);
+                return hours * 60 + minutes;
+            }
+
+            function getPrayerArabicName(prayer) {
+                const prayerNames = {
+                    'Fajr': 'الفجر',
+                    'Dhuhr': 'الظهر',
+                    'Asr': 'العصر',
+                    'Maghrib': 'المغرب',
+                    'Isha': 'العشاء',
+                    'Sunrise': 'الشروق'
+                };
+                return prayerNames[prayer] || prayer;
+            }
+
+            function checkCurrentPrayer(prayerTimes, currentTime, currentSeconds) {
+                const prayerThreshold = 2; // دقيقتين قبل وبعد وقت الصلاة
+                
+                for (const [prayer, time] of Object.entries(prayerTimes)) {
+                    if (prayer === 'Sunrise') continue;
+                    
+                    if (Math.abs(currentTime - time) <= prayerThreshold && activeAlarms[prayer.toLowerCase()]) {
+                        // تأكد من أن التنبيه لم يتم عرضه بالفعل
+                        if (!sessionStorage.getItem(`prayerAlertShown_${prayer}_${new Date().getDate()}`)) {
+                            showPrayerAlert(prayer);
+                            sessionStorage.setItem(`prayerAlertShown_${prayer}_${new Date().getDate()}`, 'true');
+                        }
+                        break;
+                    }
+                }
+            }
+
+            function useDefaultTimes() {
+                const defaultTimes = {
+                    Fajr: '05:00',
+                    Sunrise: '06:30',
+                    Dhuhr: '12:30',
+                    Asr: '15:45',
+                    Maghrib: '18:30',
+                    Isha: '20:00'
+                };
+                
+                prayerTimesData = {
+                    timings: defaultTimes,
+                    date: { hijri: { day: '--', month: { ar: '--' }, year: '----' } },
+                    meta: { method: { name: 'افتراضي (مكة المكرمة)' } }
+                };
+                
+                displayPrayerTimes(defaultTimes);
+                calculateNextPrayer(defaultTimes);
+                
+                if (nextPrayerTimer) clearInterval(nextPrayerTimer);
+                nextPrayerTimer = setInterval(() => calculateNextPrayer(defaultTimes), 1000);
+            }
+
+            function startCompassFunction() {
+                if (!isMobileDevice()) {
+                    showNotification("البوصلة تعمل فقط على الأجهزة المحمولة", "error");
+                    return;
+                }
+
+                if (!userLocation.latitude || !userLocation.longitude) {
+                    showNotification("يجب تحديد الموقع أولاً لاستخدام البوصلة", "error");
+                    return;
+                }
+
+                if (window.DeviceOrientationEvent) {
+                    if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                        DeviceOrientationEvent.requestPermission()
+                            .then(permissionState => {
+                                if (permissionState === 'granted') {
+                                    initCompass();
+                                } else {
+                                    showNotification("تم رفض صلاحيات البوصلة", "error");
+                                }
+                            })
+                            .catch(console.error);
+                    } else {
+                        initCompass();
+                    }
+                } else {
+                    compassStatus.textContent = "المتصفح أو الجهاز لا يدعم البوصلة";
+                    showNotification("المتصفح أو الجهاز لا يدعم البوصلة", "error");
+                }
+            }
+
+            function initCompass() {
+                compassStatus.textContent = "جاري تحديد اتجاه القبلة...";
+                startCompass.disabled = true;
+                stopCompass.disabled = false;
+
+                // حساب اتجاه القبلة
+                const qiblaDirection = calculateQiblaDirection(userLocation.latitude, userLocation.longitude);
+                qiblaDegree.textContent = `${Math.round(qiblaDirection)}°`;
+                
+                // عرض معلومات الموقع
+                locationInfo.innerHTML = `
+                    خط العرض: ${userLocation.latitude.toFixed(4)}° | خط الطول: ${userLocation.longitude.toFixed(4)}°<br>
+                    المسافة إلى مكة: ${calculateDistance(userLocation.latitude, userLocation.longitude, 21.3891, 39.8579).toFixed(0)} كم
+                `;
+
+                // بدء تتبع حركة الجهاز
                 window.addEventListener('deviceorientation', handleOrientation);
             }
-            
+
+            function calculateQiblaDirection(latitude, longitude) {
+                // إحداثيات الكعبة المشرفة
+                const kaabaLat = 21.3891;
+                const kaabaLng = 39.8579;
+                
+                // تحويل الدرجات إلى راديان
+                const phiK = kaabaLat * Math.PI / 180.0;
+                const lambdaK = kaabaLng * Math.PI / 180.0;
+                const phi = latitude * Math.PI / 180.0;
+                const lambda = longitude * Math.PI / 180.0;
+                
+                // حساب اتجاه القبلة باستخدام صيغة رياضية دقيقة
+                const psi = 180.0 / Math.PI * Math.atan2(
+                    Math.sin(lambdaK - lambda),
+                    Math.cos(phi) * Math.tan(phiK) - Math.sin(phi) * Math.cos(lambdaK - lambda)
+                );
+                
+                return (psi + 360.0) % 360.0;
+            }
+
+            function calculateDistance(lat1, lon1, lat2, lon2) {
+                const R = 6371; // نصف قطر الأرض بالكيلومترات
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lon2 - lon1) * Math.PI / 180;
+                const a = 
+                    Math.sin(dLat/2) * Math.sin(dLat/2) +
+                    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                    Math.sin(dLon/2) * Math.sin(dLon/2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                return R * c;
+            }
+
             function handleOrientation(event) {
-                if (qiblaDirection === null) return;
-                
-                // الحصول على اتجاه الشمال المغناطيسي
-                let compassHeading = null;
-                
-                if (event.webkitCompassHeading !== undefined) {
-                    // لأجهزة iOS
-                    compassHeading = event.webkitCompassHeading;
-                } else if (event.absolute !== undefined && event.alpha !== null) {
-                    // لأجهزة Android
-                    compassHeading = 360 - event.alpha;
-                }
-                
-                if (compassHeading !== null) {
-                    // حساب انحراف القبلة عن الشمال المغناطيسي
-                    const qiblaOffset = (compassHeading - qiblaDirection + 360) % 360;
+                if (event.alpha !== null) {
+                    // الحصول على اتجاه الشمال المغناطيسي
+                    let compassHeading = null;
                     
-                    // تحديث عرض البوصلة
-                    arrow.style.transform = `translate(-50%, -100%) rotate(${-compassHeading}deg)`;
-                    qiblaArrow.style.transform = `translate(-50%, 0%) rotate(${-qiblaOffset}deg)`;
+                    if (event.webkitCompassHeading !== undefined) {
+                        // لأجهزة iOS
+                        compassHeading = event.webkitCompassHeading;
+                    } else if (event.absolute !== undefined && event.alpha !== null) {
+                        // لأجهزة Android
+                        compassHeading = 360 - event.alpha;
+                    }
                     
-                    document.getElementById('offset-degree').textContent = `${Math.round(qiblaOffset)}°`;
+                    if (compassHeading !== null) {
+                        // حساب اتجاه القبلة
+                        const qiblaDirection = calculateQiblaDirection(userLocation.latitude, userLocation.longitude);
+                        
+                        // حساب الزاوية بين اتجاه الشمال واتجاه القبلة
+                        const angle = (compassHeading - qiblaDirection + 360) % 360;
+                        
+                        // تحديث سهم القبلة
+                        qiblaArrow.style.transform = `translate(-50%, -100%) rotate(${-angle}deg)`;
+                        
+                        compassStatus.textContent = "البوصلة نشطة - وجه الجهاز نحو القبلة";
+                    }
                 }
             }
-        }
+
+            function stopCompassFunction() {
+                window.removeEventListener('deviceorientation', handleOrientation);
+                compassStatus.textContent = "البوصلة متوقفة";
+                startCompass.disabled = false;
+                stopCompass.disabled = true;
+            }
+
+            function toggleAthanAlarm(prayer) {
+                activeAlarms[prayer] = !activeAlarms[prayer];
+                updateAthanButton(prayer);
+                saveAlarms();
+                
+                const prayerName = getPrayerArabicName(prayer.charAt(0).toUpperCase() + prayer.slice(1));
+                const message = activeAlarms[prayer] ? 
+                    `تم تفعيل التنبيه لصلاة ${prayerName}` : 
+                    `تم إلغاء التنبيه لصلاة ${prayerName}`;
+                
+                showNotification(message, "success");
+            }
+
+            function updateAthanButton(prayer) {
+                const button = document.querySelector(`.athan-btn[data-prayer="${prayer}"]`);
+                if (button) {
+                    if (activeAlarms[prayer]) {
+                        button.innerHTML = '<i class="fas fa-bell-slash"></i> إلغاء التنبيه';
+                        button.style.backgroundColor = "#dc3545";
+                    } else {
+                        button.innerHTML = '<i class="fas fa-bell"></i> تنبيه';
+                        button.style.backgroundColor = "";
+                    }
+                }
+            }
+
+            function showPrayerAlert(prayer) {
+                const prayerName = getPrayerArabicName(prayer);
+                alertPrayerName.textContent = `حان وقت صلاة ${prayerName}`;
+                
+                // إعادة تعيين الصوت وتشغيله
+                athanAudio.currentTime = 0;
+                athanAudio.play().catch(e => {
+                    console.error('Error playing athan:', e);
+                    showNotification("تعذر تشغيل الأذان. يرجى التحقق من إعدادات الصوت", "error");
+                });
+                
+                prayerAlert.style.display = 'flex';
+                
+                // إيقاف التنبيه بعد 5 دقائق تلقائياً
+                setTimeout(() => {
+                    if (!prayerAlert.style.display || prayerAlert.style.display !== 'none') {
+                        stopAthanFunction();
+                    }
+                }, 5 * 60 * 1000);
+            }
+
+            function stopAthanFunction() {
+                athanAudio.pause();
+                athanAudio.currentTime = 0;
+                prayerAlert.style.display = 'none';
+            }
+
+            function closeAlertFunction() {
+                stopAthanFunction();
+            }
+
+            function checkAlarms() {
+                if (!prayerTimesData.timings) return;
+                
+                const now = new Date();
+                const currentTime = now.getHours() * 60 + now.getMinutes();
+                const currentSeconds = now.getSeconds();
+                const prayerTimes = {
+                    fajr: convertTimeToMinutes(prayerTimesData.timings.Fajr),
+                    dhuhr: convertTimeToMinutes(prayerTimesData.timings.Dhuhr),
+                    asr: convertTimeToMinutes(prayerTimesData.timings.Asr),
+                    maghrib: convertTimeToMinutes(prayerTimesData.timings.Maghrib),
+                    isha: convertTimeToMinutes(prayerTimesData.timings.Isha)
+                };
+                
+                const prayerThreshold = 2;
+                
+                for (const [prayer, time] of Object.entries(prayerTimes)) {
+                    if (Math.abs(currentTime - time) <= prayerThreshold && activeAlarms[prayer]) {
+                        if (!sessionStorage.getItem(`prayerAlertShown_${prayer}_${new Date().getDate()}`)) {
+                            showPrayerAlert(prayer);
+                            sessionStorage.setItem(`prayerAlertShown_${prayer}_${new Date().getDate()}`, 'true');
+                        }
+                        break;
+                    }
+                }
+            }
+
+            function saveAlarms() {
+                localStorage.setItem('prayerAlarms', JSON.stringify(activeAlarms));
+            }
+
+            function loadAlarms() {
+                const savedAlarms = localStorage.getItem('prayerAlarms');
+                if (savedAlarms) {
+                    activeAlarms = JSON.parse(savedAlarms);
+                    
+                    for (const prayer in activeAlarms) {
+                        if (activeAlarms[prayer]) {
+                            updateAthanButton(prayer);
+                        }
+                    }
+                }
+            }
+        });
     </script>
 </body>
 </html>
